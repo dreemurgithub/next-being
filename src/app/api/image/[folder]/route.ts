@@ -1,12 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs/promises';
-import path from 'path';
-
-const IMAGES_DIR = path.join(process.cwd(), 'public', 'images');
+import { put, list, del, head } from '@vercel/blob';
 
 const isImageFile = (filename: string): boolean => {
-  const ext = path.extname(filename).toLowerCase();
-  return ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.tiff'].includes(ext);
+  const ext = filename.split('.').pop()?.toLowerCase();
+  return ext ? ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'tiff'].includes(ext) : false;
 };
 
 // GET: List images in the folder
@@ -15,16 +12,17 @@ export async function GET(
   { params }: { params: { folder: string } }
 ) {
   const folder = params.folder;
-  const dirPath = path.join(IMAGES_DIR, folder);
+  const prefix = `images/${folder}/`;
 
   try {
-    const files = await fs.readdir(dirPath);
-    const images = files.filter(isImageFile);
+    const { blobs } = await list({ prefix });
+    const images = blobs.map(blob => blob.pathname.split('/').pop()).filter((filename): filename is string => filename !== undefined).filter(isImageFile);
     return NextResponse.json({ images });
   } catch (error) {
+    console.error('List error:', error);
     return NextResponse.json(
-      { error: 'Folder not found or access denied' },
-      { status: 404 }
+      { error: 'Failed to list images' },
+      { status: 500 }
     );
   }
 }
@@ -35,12 +33,8 @@ export async function POST(
   { params }: { params: { folder: string } }
 ) {
   const folder = params.folder;
-  const dirPath = path.join(IMAGES_DIR, folder);
 
   try {
-    // Create folder if it doesn't exist
-    await fs.mkdir(dirPath, { recursive: true });
-
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
 
@@ -58,13 +52,12 @@ export async function POST(
       );
     }
 
-    const buffer = await file.arrayBuffer();
     const filename = file.name;
-    const filePath = path.join(dirPath, filename);
+    const pathname = `images/${folder}/${filename}`;
 
     // Check if file already exists
     try {
-      await fs.access(filePath);
+      await head(pathname);
       return NextResponse.json(
         { error: 'File already exists' },
         { status: 409 }
@@ -73,11 +66,12 @@ export async function POST(
       // File doesn't exist, proceed
     }
 
-    await fs.writeFile(filePath, Buffer.from(buffer));
+    const blob = await put(pathname, file, { access: 'public' });
 
     return NextResponse.json({
       message: 'Image uploaded successfully',
-      filename
+      filename,
+      url: blob.url
     });
   } catch (error) {
     console.error('Upload error:', error);
@@ -94,7 +88,6 @@ export async function PUT(
   { params }: { params: { folder: string } }
 ) {
   const folder = params.folder;
-  const dirPath = path.join(IMAGES_DIR, folder);
 
   try {
     const { oldName, newName }: { oldName: string; newName: string } =
@@ -114,12 +107,13 @@ export async function PUT(
       );
     }
 
-    const oldPath = path.join(dirPath, oldName);
-    const newPath = path.join(dirPath, newName);
+    const oldPathname = `images/${folder}/${oldName}`;
+    const newPathname = `images/${folder}/${newName}`;
 
     // Check if old file exists
+    let oldBlob;
     try {
-      await fs.access(oldPath);
+      oldBlob = await head(oldPathname);
     } catch {
       return NextResponse.json(
         { error: 'Original file not found' },
@@ -129,7 +123,7 @@ export async function PUT(
 
     // Check if new file already exists
     try {
-      await fs.access(newPath);
+      await head(newPathname);
       return NextResponse.json(
         { error: 'New filename already exists' },
         { status: 409 }
@@ -138,7 +132,14 @@ export async function PUT(
       // New file doesn't exist, proceed
     }
 
-    await fs.rename(oldPath, newPath);
+    // To "rename", we need to copy the content to new pathname and delete old
+    // Since Vercel Blob doesn't have copy, we download and upload
+    const response = await fetch(oldBlob.url);
+    const buffer = await response.arrayBuffer();
+    const file = new File([buffer], newName, { type: oldBlob.contentType });
+
+    await put(newPathname, file, { access: 'public' });
+    await del(oldPathname);
 
     return NextResponse.json({
       message: 'Image renamed successfully',
@@ -177,12 +178,12 @@ export async function DELETE(
     );
   }
 
-  const filePath = path.join(IMAGES_DIR, folder, filename);
+  const pathname = `images/${folder}/${filename}`;
 
   try {
     // Check if file exists
     try {
-      await fs.access(filePath);
+      await head(pathname);
     } catch {
       return NextResponse.json(
         { error: 'File not found' },
@@ -190,7 +191,7 @@ export async function DELETE(
       );
     }
 
-    await fs.unlink(filePath);
+    await del(pathname);
 
     return NextResponse.json({
       message: 'Image deleted successfully',
