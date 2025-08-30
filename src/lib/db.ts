@@ -1,8 +1,11 @@
-import { sql } from '@vercel/postgres';
+import { PrismaClient } from '@prisma/client';
 
-export { sql } from '@vercel/postgres';
+declare global {
+  var prisma: PrismaClient | undefined;
+}
 
-// You can add more database utilities here as needed
-export const db = {
-  sql,
-};
+const prisma = global.prisma || new PrismaClient();
+
+global.prisma = prisma;
+
+export default prisma;

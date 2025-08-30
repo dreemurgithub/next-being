@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { put, list } from '@vercel/blob';
+import { put, list} from '@vercel/blob';
 
 export async function GET() {
   try {
@@ -7,8 +7,7 @@ export async function GET() {
     const testContent = 'This is a test blob to verify Vercel Blob setup.';
     const testFile = new File([testContent], 'test.txt', { type: 'text/plain' });
     const pathname = 'test/test.txt';
-
-    const blob = await put(pathname, testFile, { access: 'public' });
+    const blob = await put(pathname, testFile, { access: 'public' ,allowOverwrite: true});
 
     // List blobs to verify
     const { blobs } = await list({ prefix: 'test/' });
