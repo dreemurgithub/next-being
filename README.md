@@ -20,6 +20,45 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Prerequisites
+
+This project uses Prisma for database management and Vercel Blob for file storage. Follow the steps below to set up these dependencies.
+
+### Database Setup with Prisma
+
+1. **Install Prisma** (if not already installed):
+   ```bash
+   npm install prisma @prisma/client
+   ```
+
+2. **Set up the database**:
+   - This project is configured to use PostgreSQL.
+   - Set up your database and obtain the connection URL.
+   - Copy `env.example` to `.env.local` and update the `DATABASE_URL` with your PostgreSQL connection string.
+
+3. **Run Prisma migrations**:
+   ```bash
+   npx prisma generate
+   npx prisma db push
+   ```
+
+4. **Test the database connection**:
+   - Visit `http://localhost:3000/api/test-db` to verify the setup.
+
+### File Storage with Vercel Blob
+
+1. **Install Vercel Blob** (if not already installed):
+   ```bash
+   npm install @vercel/blob
+   ```
+
+2. **Set up Vercel Blob**:
+   - Obtain a `BLOB_READ_WRITE_TOKEN` from your Vercel dashboard (under Storage > Blob).
+   - Add the token to your `.env.local` file.
+
+3. **Test the blob storage**:
+   - Visit `http://localhost:3000/api/test-blob` to verify the setup.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
