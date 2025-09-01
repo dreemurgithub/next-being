@@ -10,7 +10,17 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid or missing access token' }, { status: 401 });
   }
   try {
+    const { searchParams } = new URL(request.url);
+    const page = Math.max(parseInt(searchParams.get('page') || '1', 10), 1);
+    const pageSize = 5;
+    const skip = (page - 1) * pageSize;
+
     const posts = await prisma.post.findMany({
+      skip,
+      take: pageSize,
+      orderBy: {
+        createdAt: 'desc',
+      },
       include: {
         author: {
           select: { id: true, name: true, email: true },
