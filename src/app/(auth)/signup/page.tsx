@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { signup, SignupRequest } from '@/service/auth';
 
 export default function SignupPage() {
@@ -10,6 +11,8 @@ export default function SignupPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,8 +44,7 @@ export default function SignupPage() {
       if (response.error) {
         setError(response.error);
       } else {
-        alert('Signup successful!');
-        // Optionally redirect to login or dashboard
+        router.push('/login');
       }
     } catch (err) {
       setError('An error occurred during signup');
