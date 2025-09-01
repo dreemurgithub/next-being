@@ -3,7 +3,11 @@ import jwt from 'jsonwebtoken';
 import prisma from '@/lib/db';
 import { getUserIdFromToken } from '@/lib/server';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const userId = getUserIdFromToken(request);
+  if (!userId) {
+    return NextResponse.json({ error: 'Invalid or missing access token' }, { status: 401 });
+  }
   try {
     const posts = await prisma.post.findMany({
       include: {
