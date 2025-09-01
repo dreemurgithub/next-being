@@ -1,3 +1,5 @@
+import { QueryFunctionContext } from '@tanstack/react-query';
+
 interface FetchOptions {
   headers?: Record<string, string>;
   body?: any;
@@ -5,24 +7,24 @@ interface FetchOptions {
 
 async function apiRequest(
   url: string,
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+  method: "GET" | "POST" | "PUT" | "DELETE",
   options: FetchOptions = {}
 ): Promise<any> {
   const { headers = {}, body } = options;
 
   // Get JWT token from localStorage
-  const token = localStorage.getItem('jwt');
+  const token = localStorage.getItem("jwt");
 
   const config: RequestInit = {
     method,
     headers: {
-      'Content-Type': 'application/json',
-      ...(token && { 'Authorization': `Bearer ${token}` }),
+      "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }),
       ...headers,
     },
   };
 
-  if (body && (method === 'POST' || method === 'PUT')) {
+  if (body && (method === "POST" || method === "PUT")) {
     config.body = JSON.stringify(body);
   }
 
@@ -33,19 +35,32 @@ async function apiRequest(
     }
     return response.json();
   } catch (error) {
-    console.error('Fetch error:', error);
+    console.error("Fetch error:", error);
     throw error;
   }
 }
 
+export const queryFetch = async (context: QueryFunctionContext<string[]>) => {
+  const [url] = context.queryKey;
+  const token = localStorage.getItem("jwt");
+  const response = await fetch(url, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    signal: context.signal,
+  });
+  return await response.json();
+};
+
 export const fetchGet = (url: string, options?: FetchOptions): Promise<any> =>
-  apiRequest(url, 'GET', options);
+  apiRequest(url, "GET", options);
 
 export const fetchPost = (url: string, options?: FetchOptions): Promise<any> =>
-  apiRequest(url, 'POST', options);
+  apiRequest(url, "POST", options);
 
 export const fetchPut = (url: string, options?: FetchOptions): Promise<any> =>
-  apiRequest(url, 'PUT', options);
+  apiRequest(url, "PUT", options);
 
 export const fetchDel = (url: string, options?: FetchOptions): Promise<any> =>
-  apiRequest(url, 'DELETE', options);
+  apiRequest(url, "DELETE", options);

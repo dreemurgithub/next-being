@@ -4,7 +4,7 @@ import prisma from '@/lib/db';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     const refreshToken = request.cookies.get('refreshToken')?.value;
 

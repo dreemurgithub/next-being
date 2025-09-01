@@ -1,4 +1,4 @@
-import { fetchPost } from '@/lib/fetch';
+import { fetchPost,fetchGet,fetchDel,fetchPut } from '@/lib/fetch';
 
 export interface LoginRequest {
   email: string;
@@ -42,10 +42,10 @@ export async function signup(data: SignupRequest): Promise<AuthResponse> {
   }
 }
 
-export async function reset(): Promise<AuthResponse> {
+export async function reset() {
   try {
-    const response = await fetchPost('/api/auth/reset');
-    return response;
+    const response = await fetchGet('/api/auth/reset');
+    localStorage.setItem('jwt',response.accessToken as string)
   } catch (error) {
     console.error('Reset error:', error);
     throw error;
