@@ -1,8 +1,10 @@
 'use client';
 import { fetchPost } from '@/lib/fetch';
 import { useState } from 'react';
+import { useAuthReset } from '@/hook/useAuthReset';
 
 export default function CreatePost() {
+    useAuthReset()
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [files, setFiles] = useState<FileList | null>(null);

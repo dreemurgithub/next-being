@@ -10,7 +10,7 @@ export const useAuthReset = () => {
     refetchInterval: 1000 * 60 * 15 // 15min to reset auth
   });
   useEffect(()=>{
-    if(!data) localStorage.setItem('jwt',data.accessToken as string)
+    if(data) localStorage.setItem('jwt',data.accessToken as string)
   },[data])
 
   return {
