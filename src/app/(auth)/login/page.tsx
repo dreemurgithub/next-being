@@ -1,11 +1,15 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { login } from '@/service/auth';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,11 +21,18 @@ export default function LoginPage() {
       return;
     }
 
-    // TODO: Implement actual login logic (e.g., API call)
-    console.log('Login attempt:', { email, password });
-
-    // For now, simulate login success
-    alert('Login successful!');
+    try {
+      const response = await login({ email, password });
+      if (response.message === 'Login successful') {
+        // Navigate to home page after successful login
+        router.push('/');
+      } else {
+        setError(response.error || 'Login failed');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setError('An error occurred during login');
+    }
   };
 
   return (
