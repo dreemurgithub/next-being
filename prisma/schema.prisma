@@ -36,6 +36,7 @@ model Post {
   authorId  String
   author    User     @relation(fields: [authorId], references: [id])
   comments  Comment[]
+  images    ImageBlob[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -61,6 +62,8 @@ model ImageBlob {
   uploadedBy  String
   uploader    User     @relation("UserImages", fields: [uploadedBy], references: [id])
   userAvatar  User?    @relation("UserAvatar")
+  postId      String?
+  post        Post?    @relation(fields: [postId], references: [id], onDelete: SetNull)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
