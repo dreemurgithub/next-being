@@ -9,9 +9,9 @@ const isImageFile = (filename: string): boolean => {
 // GET: List images in the folder
 export async function GET(
   request: NextRequest,
-  { params }: { params: { folder: string } }
+  { params }: { params: Promise<{ folder: string }> }
 ) {
-  const folder = params.folder;
+  const { folder } = await params;
   const prefix = `images/${folder}/`;
 
   try {
@@ -30,9 +30,9 @@ export async function GET(
 // POST: Upload an image to the folder
 export async function POST(
   request: NextRequest,
-  { params }: { params: { folder: string } }
+  { params }: { params: Promise<{ folder: string }> }
 ) {
-  const folder = params.folder;
+  const { folder } = await params;
 
   try {
     const formData = await request.formData();
@@ -85,9 +85,9 @@ export async function POST(
 // PUT: Rename an image in the folder
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { folder: string } }
+  { params }: { params: Promise<{ folder: string }> }
 ) {
-  const folder = params.folder;
+  const { folder } = await params;
 
   try {
     const { oldName, newName }: { oldName: string; newName: string } =
@@ -158,9 +158,9 @@ export async function PUT(
 // DELETE: Delete an image from the folder
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { folder: string } }
+  { params }: { params: Promise<{ folder: string }> }
 ) {
-  const folder = params.folder;
+  const { folder } = await params;
   const url = new URL(request.url);
   const filename = url.searchParams.get('filename');
 

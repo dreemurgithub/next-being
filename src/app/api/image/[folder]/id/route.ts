@@ -9,10 +9,9 @@ const isImageFile = (filename: string): boolean => {
 // GET: Retrieve image info by ID (filename)
 export async function GET(
   request: NextRequest,
-  { params }: { params: { folder: string; id: string } }
+  { params }: { params: any }
 ) {
-  const folder = params.folder;
-  const id = params.id;
+  const { folder, id } = await params;
 
   if (!isImageFile(id)) {
     return NextResponse.json(
@@ -43,10 +42,9 @@ export async function GET(
 // DELETE: Delete image by ID (filename)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { folder: string; id: string } }
+  { params }: { params: any }
 ) {
-  const folder = params.folder;
-  const id = params.id;
+  const { folder, id } = await params;
 
   if (!isImageFile(id)) {
     return NextResponse.json(
