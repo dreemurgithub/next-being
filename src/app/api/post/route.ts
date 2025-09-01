@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import prisma from '@/lib/db';
 import { getUserIdFromToken } from '@/lib/server';
+import { serializePost } from './PostSerializer';
 
 export async function GET(request: NextRequest) {
   const userId = getUserIdFromToken(request);
@@ -18,7 +19,9 @@ export async function GET(request: NextRequest) {
         comments: true,
       },
     });
-    return NextResponse.json(posts);
+    // Serialize posts to convert blobs to URLs
+    const serializedPosts = await Promise.all(posts.map(serializePost));
+    return NextResponse.json(serializedPosts);
   } catch (error) {
     console.error('Error fetching posts:', error);
     return NextResponse.json({ error: 'Failed to fetch posts' }, { status: 500 });
@@ -83,10 +86,17 @@ export async function POST(request: NextRequest) {
       include: {
         author: { select: { id: true, name: true, email: true } },
         images: true,
+        comments: true,
       },
     });
 
-    return NextResponse.json(createdPost, { status: 201 });
+    if (createdPost) {
+      // Serialize the post to convert blobs to URLs
+      const serializedPost = await serializePost(createdPost);
+      return NextResponse.json(serializedPost, { status: 201 });
+    } else {
+      return NextResponse.json({ error: 'Failed to retrieve created post' }, { status: 500 });
+    }
   } catch (error) {
     console.error('Error creating post:', error);
     return NextResponse.json({ error: 'Failed to create post' }, { status: 500 });
