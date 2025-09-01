@@ -10,10 +10,14 @@ async function apiRequest(
 ): Promise<any> {
   const { headers = {}, body } = options;
 
+  // Get JWT token from localStorage
+  const token = localStorage.getItem('jwt');
+
   const config: RequestInit = {
     method,
     headers: {
       'Content-Type': 'application/json',
+      ...(token && { 'Authorization': `Bearer ${token}` }),
       ...headers,
     },
   };
