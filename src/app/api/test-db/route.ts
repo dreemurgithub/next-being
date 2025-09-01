@@ -6,9 +6,18 @@ export async function GET() {
     // Test database connection with Prisma
     const result = await prisma.$queryRaw`SELECT NOW() as current_time`;
 
+    // Test User with avatar relation
+    const users = await prisma.user.findMany({
+      include: {
+        avatar: true,
+        imageBlobs: true,
+      },
+    });
+
     return NextResponse.json({
       message: 'Database connection successful!',
       data: result,
+      users: users,
     });
   } catch (error) {
     console.error('Database connection error:', error);

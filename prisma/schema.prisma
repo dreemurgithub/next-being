@@ -18,8 +18,11 @@ model User {
   id        String   @id @default(uuid())
   email     String   @unique
   name      String?
+  avatarId  String?  @unique
+  avatar    ImageBlob? @relation("UserAvatar", fields: [avatarId], references: [id], onDelete: SetNull)
   posts     Post[]
   comments  Comment[]
+  imageBlobs ImageBlob[] @relation("UserImages")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -45,4 +48,18 @@ model Comment {
   post     Post    @relation(fields: [postId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model ImageBlob {
+  id          String   @id @default(uuid())
+  filename    String
+  blob        Bytes
+  mimeType    String
+  size        Int
+  folder      String
+  uploadedBy  String
+  uploader    User     @relation("UserImages", fields: [uploadedBy], references: [id])
+  userAvatar  User?    @relation("UserAvatar")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
