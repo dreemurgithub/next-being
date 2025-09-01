@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { signup, SignupRequest } from '@/service/auth';
 
 export default function SignupPage() {
   const [name, setName] = useState('');
@@ -8,32 +9,47 @@ export default function SignupPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
 
     // Basic validation
     if (!name || !email || !password || !confirmPassword) {
       setError('Please fill in all fields');
+      setLoading(false);
       return;
     }
 
     if (password !== confirmPassword) {
       setError('Passwords do not match');
+      setLoading(false);
       return;
     }
 
     if (password.length < 6) {
       setError('Password must be at least 6 characters long');
+      setLoading(false);
       return;
     }
 
-    // TODO: Implement actual signup logic (e.g., API call)
-    console.log('Signup attempt:', { name, email, password });
-
-    // For now, simulate signup success
-    alert('Signup successful!');
+    try {
+      const signupData: SignupRequest = { name, email, password };
+      const response = await signup(signupData);
+      if (response.error) {
+        setError(response.error);
+      } else {
+        alert('Signup successful!');
+        // Optionally redirect to login or dashboard
+      }
+    } catch (err) {
+      setError('An error occurred during signup');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -119,9 +135,10 @@ export default function SignupPage() {
           <div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              disabled={loading}
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
             >
-              Sign up
+              {loading ? 'Signing up...' : 'Sign up'}
             </button>
           </div>
         </form>
