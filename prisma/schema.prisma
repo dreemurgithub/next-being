@@ -19,7 +19,6 @@ model User {
   email         String   @unique
   name          String?
   password      String
-  refreshToken  String?
   avatarId      String?  @unique
   avatar        ImageBlob? @relation("UserAvatar", fields: [avatarId], references: [id], onDelete: SetNull)
   posts         Post[]

@@ -20,12 +20,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid refresh token' }, { status: 401 });
     }
 
-    // Remove refresh token from user
-    await prisma.user.update({
-      where: { id: decoded.userId },
-      data: { refreshToken: null },
-    });
-
     // Clear the refresh token cookie
     const response = NextResponse.json({ message: 'Logout successful' });
 

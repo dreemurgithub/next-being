@@ -31,12 +31,6 @@ export async function POST(request: NextRequest) {
     // Generate refresh token
     const refreshToken = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
 
-    // Update user with refresh token
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { refreshToken },
-    });
-
     // Set refresh token as httpOnly cookie
     const response = NextResponse.json({ message: 'Login successful' });
 
