@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import jwt from 'jsonwebtoken';
 import prisma from '@/lib/db';
+import { getUserIdFromToken } from '@/lib/server';
 
 export async function GET() {
   try {
@@ -21,15 +23,20 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    // Extract userId from accessToken in Authorization header
+    const userId = getUserIdFromToken(request);
+    if (!userId) {
+      return NextResponse.json({ error: 'Invalid or missing access token' }, { status: 401 });
+    }
+
     const formData = await request.formData();
-    const userId = formData.get('userId') as string;
     const title = formData.get('title') as string;
     const content = formData.get('content') as string;
     const published = formData.get('published') === 'true';
     const images = formData.getAll('images') as File[];
 
-    if (!userId || !title) {
-      return NextResponse.json({ error: 'userId and title are required' }, { status: 400 });
+    if (!title) {
+      return NextResponse.json({ error: 'Title is required' }, { status: 400 });
     }
 
     // Create the post
