@@ -1,9 +1,10 @@
 'use client';
-
+import { fetchPost } from '@/lib/fetch';
 import { useState } from 'react';
 
 export default function CreatePost() {
-    const [text, setText] = useState('');
+    const [title, setTitle] = useState('');
+    const [content, setContent] = useState('');
     const [files, setFiles] = useState<FileList | null>(null);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -14,24 +15,33 @@ export default function CreatePost() {
         e.preventDefault();
 
         // Handle form submission here
-        // You can send the text and files to your API endpoint
-        console.log('Text:', text);
+        console.log('Title:', title);
+        console.log('Content:', content);
         console.log('Files:', files);
 
-        // Example: Create FormData for file upload
+        // Create FormData for file upload
         const formData = new FormData();
-        formData.append('text', text);
+        formData.append('title', title);
+        formData.append('content', content);
+        formData.append('published', 'true');
         if (files) {
-            Array.from(files).forEach((file, index) => {
-                formData.append(`image_${index}`, file);
+            Array.from(files).forEach((file) => {
+                formData.append('images', file);
             });
         }
 
-        // TODO: Send to API endpoint
-        // const response = await fetch('/api/post/create', {
-        //   method: 'POST',
-        //   body: formData,
-        // });
+        try {
+            const response = await fetchPost('/api/post', {
+                body: formData,
+            });
+            console.log('Post created:', response);
+            // Reset form
+            setTitle('');
+            setContent('');
+            setFiles(null);
+        } catch (error) {
+            console.error('Error creating post:', error);
+        }
     };
 
     return (
@@ -39,15 +49,31 @@ export default function CreatePost() {
             <h1 className="text-2xl font-bold mb-6">Create New Post</h1>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Text Input */}
+                {/* Title Input */}
                 <div>
-                    <label htmlFor="text" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+                        Post Title
+                    </label>
+                    <input
+                        type="text"
+                        id="title"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        placeholder="Enter post title..."
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        required
+                    />
+                </div>
+
+                {/* Content Input */}
+                <div>
+                    <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
                         Post Content
                     </label>
                     <textarea
-                        id="text"
-                        value={text}
-                        onChange={(e) => setText(e.target.value)}
+                        id="content"
+                        value={content}
+                        onChange={(e) => setContent(e.target.value)}
                         placeholder="Write your post content here..."
                         rows={4}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"

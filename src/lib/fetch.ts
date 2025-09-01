@@ -18,14 +18,21 @@ async function apiRequest(
   const config: RequestInit = {
     method,
     headers: {
-      "Content-Type": "application/json",
       ...(token && { Authorization: `Bearer ${token}` }),
       ...headers,
     },
   };
 
   if (body && (method === "POST" || method === "PUT")) {
-    config.body = JSON.stringify(body);
+    if (body instanceof FormData) {
+      config.body = body;
+    } else {
+      config.headers = {
+        ...config.headers,
+        "Content-Type": "application/json",
+      };
+      config.body = JSON.stringify(body);
+    }
   }
 
   try {
