@@ -1,6 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { fetchPost, fetchGet, queryFetch } from "@/lib/fetch";
-import type { LoginRequest, SignupRequest, AuthResponse } from "@/service/auth";
 import { useEffect } from "react";
 
 export const useAuthReset = () => {
