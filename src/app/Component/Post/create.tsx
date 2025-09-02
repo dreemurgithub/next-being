@@ -2,9 +2,11 @@
 import { fetchPost } from '@/lib/fetch';
 import { useState } from 'react';
 import { useAuthReset } from '@/hook/useAuthReset';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function CreatePost() {
     useAuthReset()
+    const queryClient = useQueryClient();
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [files, setFiles] = useState<FileList | null>(null);
@@ -37,6 +39,8 @@ export default function CreatePost() {
                 body: formData,
             });
             console.log('Post created:', response);
+            // Invalidate posts queries to reload the list
+            queryClient.invalidateQueries({ queryKey: ['/api/post'] });
             // Reset form
             setTitle('');
             setContent('');
