@@ -14,10 +14,21 @@ export async function GET(request: NextRequest) {
     const page = Math.max(parseInt(searchParams.get('page') || '1', 10), 1);
     const pageSize = 5;
     const skip = (page - 1) * pageSize;
+    const titleSearch = searchParams.get('title');
+    const contentSearch = searchParams.get('content');
+
+    const where: any = {};
+    if (titleSearch) {
+      where.title = { contains: titleSearch, mode: 'insensitive' };
+    }
+    if (contentSearch) {
+      where.content = { contains: contentSearch, mode: 'insensitive' };
+    }
 
     const posts = await prisma.post.findMany({
       skip,
       take: pageSize,
+      where,
       orderBy: {
         createdAt: 'desc',
       },
