@@ -1,6 +1,7 @@
 import { getUserIdFromToken } from "@/lib/server";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
+import { serializeUser } from "../../user/UserSerializer";
 
 export async function GET(request: NextRequest) {
   const userId = getUserIdFromToken(request);
@@ -12,13 +13,15 @@ export async function GET(request: NextRequest) {
   try {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        avatarId: true,
-        createdAt: true,
-        updatedAt: true,
+      include: {
+        avatar: true,
+        posts: {
+          include: {
+            author: true,
+            images: true,
+            comments: true,
+          },
+        },
       },
     });
 
@@ -26,7 +29,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    return NextResponse.json(user);
+    const serializedUser = await serializeUser(user);
+    return NextResponse.json(serializedUser);
   } catch (error) {
     console.error("Error fetching user:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
