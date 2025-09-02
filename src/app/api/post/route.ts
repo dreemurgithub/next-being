@@ -16,7 +16,8 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * pageSize;
     const titleSearch = searchParams.get('title');
     const contentSearch = searchParams.get('content');
-
+    const minComments = searchParams.get('minComments');
+    const maxComments = searchParams.get('maxComments');
     const where: any = {};
     if (titleSearch) {
       where.title = { contains: titleSearch, mode: 'insensitive' };
@@ -24,6 +25,7 @@ export async function GET(request: NextRequest) {
     if (contentSearch) {
       where.content = { contains: contentSearch, mode: 'insensitive' };
     }
+    // Comment count filtering will be applied after fetching
 
     const posts = await prisma.post.findMany({
       skip,
@@ -52,8 +54,20 @@ export async function GET(request: NextRequest) {
         comments: true,
       },
     });
+
+    // Apply comment count filtering
+    let filteredPosts = posts;
+    if (minComments) {
+      const min = parseInt(minComments, 10);
+      filteredPosts = filteredPosts.filter(post => post.comments.length >= min);
+    }
+    if (maxComments) {
+      const max = parseInt(maxComments, 10);
+      filteredPosts = filteredPosts.filter(post => post.comments.length <= max);
+    }
+
     // Map avatar to image for compatibility
-    const mappedPosts = posts.map(post => ({
+    const mappedPosts = filteredPosts.map(post => ({
       ...post,
       author: {
         id: post.author.id,
