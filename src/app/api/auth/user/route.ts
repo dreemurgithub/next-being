@@ -18,7 +18,9 @@ export async function GET(request: NextRequest) {
         avatar: true,
         posts: {
           include: {
-            author: true,
+            author: {
+              include: { avatar: true }
+            },
             images: true,
             comments: true,
           },
@@ -30,7 +32,21 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const serializedUser = await serializeUser(user);
+    // Map avatar to image for posts' authors
+    const mappedUser = {
+      ...user,
+      posts: user.posts.map(post => ({
+        ...post,
+        author: {
+          id: post.author.id,
+          name: post.author.name,
+          email: post.author.email,
+          image: post.author.avatar
+        }
+      }))
+    };
+
+    const serializedUser = await serializeUser(mappedUser);
     return NextResponse.json(serializedUser);
   } catch (error) {
     console.error("Error fetching user:", error);
@@ -127,7 +143,9 @@ export async function POST(request: NextRequest) {
         avatar: true,
         posts: {
           include: {
-            author: true,
+            author: {
+              include: { avatar: true }
+            },
             images: true,
             comments: true,
           },
@@ -135,7 +153,21 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    const serializedUser = await serializeUser(updatedUser);
+    // Map avatar to image for posts' authors
+    const mappedUpdatedUser = {
+      ...updatedUser,
+      posts: updatedUser.posts.map(post => ({
+        ...post,
+        author: {
+          id: post.author.id,
+          name: post.author.name,
+          email: post.author.email,
+          image: post.author.avatar
+        }
+      }))
+    };
+
+    const serializedUser = await serializeUser(mappedUpdatedUser);
     return NextResponse.json({
       message: "User updated successfully",
       user: serializedUser

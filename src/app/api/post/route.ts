@@ -24,13 +24,24 @@ export async function GET(request: NextRequest) {
       include: {
         author: {
           select: { id: true, name: true, email: true },
+          include: { avatar: true },
         },
         images: true,
         comments: true,
       },
     });
+    // Map avatar to image for compatibility
+    const mappedPosts = posts.map(post => ({
+      ...post,
+      author: {
+        id: post.author.id,
+        name: post.author.name,
+        email: post.author.email,
+        image: post.author.avatar
+      }
+    }));
     // Serialize posts to convert blobs to URLs
-    const serializedPosts = await Promise.all(posts.map(serializePost));
+    const serializedPosts = await Promise.all(mappedPosts.map(serializePost));
     return NextResponse.json(serializedPosts);
   } catch (error) {
     console.error('Error fetching posts:', error);
@@ -94,15 +105,28 @@ export async function POST(request: NextRequest) {
     const createdPost = await prisma.post.findUnique({
       where: { id: post.id },
       include: {
-        author: { select: { id: true, name: true, email: true } },
+        author: {
+          select: { id: true, name: true, email: true },
+          include: { avatar: true },
+        },
         images: true,
         comments: true,
       },
     });
 
     if (createdPost) {
+      // Map avatar to image for compatibility
+      const mappedCreatedPost = {
+        ...createdPost,
+        author: {
+          id: createdPost.author.id,
+          name: createdPost.author.name,
+          email: createdPost.author.email,
+          image: createdPost.author.avatar
+        }
+      };
       // Serialize the post to convert blobs to URLs
-      const serializedPost = await serializePost(createdPost);
+      const serializedPost = await serializePost(mappedCreatedPost);
       return NextResponse.json(serializedPost, { status: 201 });
     } else {
       return NextResponse.json({ error: 'Failed to retrieve created post' }, { status: 500 });

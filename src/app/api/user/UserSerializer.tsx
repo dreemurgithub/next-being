@@ -1,4 +1,4 @@
-import { serializePost } from '../post/PostSerializer';
+import { serializePost, Post as ImportedPost } from '../post/PostSerializer';
 
 interface ImageBlob {
   id: string;
@@ -22,23 +22,6 @@ interface SerializedImage {
   uploadedAt: Date;
 }
 
-interface Post {
-  id: string;
-  title: string;
-  content: string | null;
-  published: boolean;
-  authorId: string;
-  author: {
-    id: string;
-    name: string | null;
-    email: string;
-  };
-  images: ImageBlob[];
-  comments: any[];
-  createdAt: Date;
-  updatedAt: Date;
-}
-
 interface User {
   id: string;
   email: string;
@@ -46,7 +29,7 @@ interface User {
   password?: string;
   avatarId: string | null;
   avatar: ImageBlob | null;
-  posts: Post[];
+  posts: ImportedPost[];
   comments?: any[];
   imageBlobs?: ImageBlob[];
   createdAt: Date;
