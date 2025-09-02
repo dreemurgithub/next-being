@@ -11,10 +11,19 @@ export const useAuthReset = () => {
     refetchInterval: 1000 * 60 * 15 // 15min to reset auth
   });
   useEffect(() => {
-    console.log(data)
-    if (data && data.accessToken) localStorage.setItem('jwt', data.accessToken as string)
-    else router.push('/login');
+    if (data && data.accessToken) {
+      localStorage.setItem('jwt', data.accessToken as string)
+      router.push('/');
+      return
+    }
+    if (data && data.error) {
+      router.push('/login');
+    }
   }, [data])
+
+  // useEffect(() => {
+  //   if (error && router) router.push('/login');
+  // }, [error,router])
 
   return {
     isPending,

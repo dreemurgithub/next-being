@@ -3,12 +3,13 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { login } from '@/service/auth';
+import { useAuthReset } from '@/hook/useAuthReset';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-
+  useAuthReset()
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {

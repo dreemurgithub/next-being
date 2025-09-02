@@ -115,7 +115,7 @@ export default function Home() {
 
                   <div className="flex items-center justify-between text-sm text-gray-500">
                     <span>{post.comments.length} comments</span>
-                    <span>Posted by {post.author.email}</span>
+                    <span>Posted by {post.author.name}</span>
                   </div>
                 </div>
               </article>
