@@ -102,22 +102,24 @@ export default function UserPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-8 text-center">
           My Profile
         </h1>
 
         {user && (
           <div className="bg-white p-6 rounded-lg shadow-md mb-8">
             {!isEditing ? (
-              <div className="flex items-start justify-between">
-                <div className="flex items-center space-x-4">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
                   <div className="relative">
                     {user.avatar ? (
-                      <img
-                        src={user.avatar.url}
-                        alt={user.avatar.filename}
-                        className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
-                      />
+                      <div style={{ display:'flex',justifyContent:'center' }} >
+                        <img
+                          src={user.avatar.url}
+                          alt={user.avatar.filename}
+                          className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
+                        />
+                      </div>
                     ) : (
                       <div className="w-20 h-20 rounded-full bg-gray-300 flex items-center justify-center">
                         <span className="text-gray-600 text-2xl font-bold">
@@ -126,7 +128,7 @@ export default function UserPage() {
                       </div>
                     )}
                   </div>
-                  <div>
+                  <div className="text-center sm:text-left">
                     <h2 className="text-2xl font-semibold text-gray-900">
                       {user.name || 'Anonymous'}
                     </h2>
@@ -138,14 +140,14 @@ export default function UserPage() {
                 </div>
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors mt-4 sm:mt-0"
                 >
                   Edit Profile
                 </button>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="flex items-start space-x-6">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:space-x-6 space-y-4 sm:space-y-0">
                   <div className="flex flex-col items-center space-y-2">
                     <div className="relative">
                       {previewUrl ? (
@@ -215,7 +217,7 @@ export default function UserPage() {
                   </div>
                 </div>
 
-                <div className="flex justify-end space-x-3">
+                <div className="flex flex-col sm:flex-row sm:justify-end sm:space-x-3 space-y-2 sm:space-y-0">
                   <button
                     type="button"
                     onClick={handleCancel}
