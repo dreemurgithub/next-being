@@ -10,6 +10,22 @@ export const usePost = () => {
     const queryClient = useQueryClient();
     const searchParams = useSearchParams();
     const router = useRouter();
+
+    useEffect(() => {
+        const pageParam = searchParams.get('page');
+        if (!pageParam) {
+            // No page param, navigate to /?page=1
+            router.push('/?page=1');
+            return;
+        }
+        const pageNum = parseInt(pageParam, 10);
+        if (isNaN(pageNum) || pageNum < 1) {
+            // Page param is not a valid number or negative, navigate to /?page=1
+            router.push('/?page=1');
+            return;
+        }
+    }, [searchParams, router]);
+
     const page = parseInt(searchParams.get('page') || '1');
     const setpage = (newPage: number) => {
         const params = new URLSearchParams(searchParams);
