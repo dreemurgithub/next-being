@@ -1,11 +1,12 @@
 "use client";
 
+import { Suspense } from "react";
 import { usePost } from "@/hook/usePost";
 import CreatePost from "@/app/Component/Post/create";
 import PostList from "@/app/Component/Post/PostList";
 import { Post } from "@/app/Component/Post/PostComponent";
 
-export default function Home() {
+function HomeContent() {
   const { isPending, error, data, isFetching, page, setpage } = usePost();
 
   if (isPending) {
@@ -66,5 +67,17 @@ export default function Home() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg">Loading...</div>
+      </div>
+    }>
+      <HomeContent />
+    </Suspense>
   );
 }
