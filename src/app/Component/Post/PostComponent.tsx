@@ -69,8 +69,8 @@ export default function PostComponent({ post }: PostComponentProps) {
           <div className="flex-shrink-0">
             <div className="w-20 h-20 bg-gray-300 rounded-full flex items-center justify-center">
               <Image
-                src={post.author.image.url}
-                alt={post.author.image.filename}
+                src={post.author.image?.url || ""}
+                alt={post.author.image?.filename || `avatar: ${post.author.name}`}
                 width={20}
                 height={20}
                 className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
@@ -80,7 +80,7 @@ export default function PostComponent({ post }: PostComponentProps) {
           </div>
           <div className="ml-3">
             <p className="text-sm font-medium text-gray-900">
-              {post.author.name || "Unknown Author"} - ahaha
+              {post.author.name || "Unknown Author"}
             </p>
             <p className="text-sm text-gray-500">
               {new Date(post.createdAt).toLocaleDateString()}

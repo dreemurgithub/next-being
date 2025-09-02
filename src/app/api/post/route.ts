@@ -21,10 +21,21 @@ export async function GET(request: NextRequest) {
       orderBy: {
         createdAt: 'desc',
       },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        published: true,
+        authorId: true,
+        createdAt: true,
+        updatedAt: true,
         author: {
-          select: { id: true, name: true, email: true },
-          include: { avatar: true },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true,
+          },
         },
         images: true,
         comments: true,
@@ -104,10 +115,21 @@ export async function POST(request: NextRequest) {
     // Fetch the created post with images
     const createdPost = await prisma.post.findUnique({
       where: { id: post.id },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        published: true,
+        authorId: true,
+        createdAt: true,
+        updatedAt: true,
         author: {
-          select: { id: true, name: true, email: true },
-          include: { avatar: true },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true,
+          },
         },
         images: true,
         comments: true,
