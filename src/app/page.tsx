@@ -2,7 +2,8 @@
 
 import { usePost } from "@/hook/usePost";
 import CreatePost from "@/app/Component/Post/create";
-import PostList, { Post } from "@/app/Component/Post/PostList";
+import PostList from "@/app/Component/Post/PostList";
+import { Post } from "@/app/Component/Post/PostComponent";
 
 export default function Home() {
   const { isPending, error, data, isFetching, page, setpage } = usePost();
