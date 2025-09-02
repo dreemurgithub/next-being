@@ -1,12 +1,9 @@
 'use client';
-import { fetchPost } from '@/lib/fetch';
 import { useState } from 'react';
-import { useAuthReset } from '@/hook/useAuthReset';
-import { useQueryClient } from '@tanstack/react-query';
+import { usePost } from '@/hook/usePost';
 
 export default function CreatePost() {
-    useAuthReset()
-    const queryClient = useQueryClient();
+    const { mutation } = usePost();
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [files, setFiles] = useState<FileList | null>(null);
@@ -15,13 +12,8 @@ export default function CreatePost() {
         setFiles(e.target.files);
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-
-        // Handle form submission here
-        console.log('Title:', title);
-        console.log('Content:', content);
-        console.log('Files:', files);
 
         // Create FormData for file upload
         const formData = new FormData();
@@ -34,20 +26,14 @@ export default function CreatePost() {
             });
         }
 
-        try {
-            const response = await fetchPost('/api/post', {
-                body: formData,
-            });
-            console.log('Post created:', response);
-            // Invalidate posts queries to reload the list
-            queryClient.invalidateQueries({ queryKey: ['/api/post'] });
-            // Reset form
-            setTitle('');
-            setContent('');
-            setFiles(null);
-        } catch (error) {
-            console.error('Error creating post:', error);
-        }
+        mutation.mutate(formData, {
+            onSuccess: () => {
+                // Reset form after successful submission
+                setTitle('');
+                setContent('');
+                setFiles(null);
+            },
+        });
     };
 
     return (
@@ -110,9 +96,10 @@ export default function CreatePost() {
                 {/* Submit Button */}
                 <button
                     type="submit"
-                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    disabled={mutation.isPending}
+                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    Create Post
+                    {mutation.isPending ? 'Creating Post...' : 'Create Post'}
                 </button>
             </form>
         </div>
