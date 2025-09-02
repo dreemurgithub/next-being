@@ -73,7 +73,8 @@ export async function serializeUser(user: User): Promise<SerializedUser> {
   // Serialize avatar if exists
   if (user.avatar) {
     const { id, filename, size, folder, createdAt } = user.avatar;
-    const pathname = `images/${folder}/${filename}`;
+    const pathname = `${folder}/${user.id}/${filename}`;
+    // const pathname = `images/${folder}/${filename}`;
     serializedUser.avatar = {
       id,
       filename,
