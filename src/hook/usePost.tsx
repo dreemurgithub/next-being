@@ -1,13 +1,21 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchPost, fetchGet, queryFetch, } from "@/lib/fetch";
 import type { LoginRequest, SignupRequest, AuthResponse } from "@/service/auth";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useAuthReset } from "./useAuthReset";
+import { useSearchParams, useRouter } from "next/navigation";
 
 export const usePost = () => {
     useAuthReset()
     const queryClient = useQueryClient();
-    const [page, setpage] = useState(1)
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const page = parseInt(searchParams.get('page') || '1');
+    const setpage = (newPage: number) => {
+        const params = new URLSearchParams(searchParams);
+        params.set('page', newPage.toString());
+        router.push(`?${params.toString()}`);
+    };
     const { isPending, error, data, isFetching } = useQuery({
         queryKey: [`/api/post?page=${page}`],
         queryFn: queryFetch,
@@ -17,7 +25,7 @@ export const usePost = () => {
             return fetchPost('/api/post', { body: formData })
         },
         onSuccess: () => {
-            setpage(1)
+            setpage(1);
             queryClient.invalidateQueries({ queryKey: [`/api/post?page=${1}`] });
         },
     })
