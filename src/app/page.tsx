@@ -64,7 +64,7 @@ export default function Home() {
           </div>
         ) : (
           <div className="space-y-6">
-            {posts.map((post) => (
+            {Array.isArray(posts) &&  posts.map((post) => (
               <article
                 key={post.id}
                 className="bg-white rounded-lg shadow-md overflow-hidden"
