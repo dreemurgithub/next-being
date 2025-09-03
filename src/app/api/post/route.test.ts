@@ -53,7 +53,93 @@ describe('POST /api/post', () => {
   });
 
   describe('GET', () => {
-    it('should fetch posts with page=1 and return post records', async () => {
+    it('should fetch all posts when no page parameter is provided', async () => {
+      // Mock user authentication
+      const { getUserIdFromToken } = require('@/lib/server');
+      getUserIdFromToken.mockReturnValue(1);
+
+      // Mock database response
+      const mockPosts = [
+        {
+          id: 1,
+          title: 'Test Post 1',
+          content: 'Test content 1',
+          published: true,
+          authorId: 1,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          author: {
+            id: 1,
+            name: 'Test User',
+            email: 'test@example.com',
+            avatar: 'avatar-url',
+          },
+          images: [],
+          comments: [],
+        },
+        {
+          id: 2,
+          title: 'Test Post 2',
+          content: 'Test content 2',
+          published: true,
+          authorId: 1,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          author: {
+            id: 1,
+            name: 'Test User',
+            email: 'test@example.com',
+            avatar: 'avatar-url',
+          },
+          images: [],
+          comments: [],
+        },
+        {
+          id: 3,
+          title: 'Test Post 3',
+          content: 'Test content 3',
+          published: true,
+          authorId: 1,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          author: {
+            id: 1,
+            name: 'Test User',
+            email: 'test@example.com',
+            avatar: 'avatar-url',
+          },
+          images: [],
+          comments: [],
+        },
+      ];
+
+      (prisma.post.findMany as jest.Mock).mockResolvedValue(mockPosts);
+      
+      // Mock the serializePost function
+      (serializePost as jest.Mock).mockImplementation((post) => Promise.resolve(post));
+
+      const request = createMockRequest('http://localhost:3000/api/post');
+      const response = await GET(request);
+      const responseBody = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(Array.isArray(responseBody)).toBe(true);
+      expect(responseBody.length).toBe(3);
+      expect(prisma.post.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          orderBy: { createdAt: 'desc' },
+        })
+      );
+      // Ensure skip and take are not present when fetching all posts
+      expect(prisma.post.findMany).not.toHaveBeenCalledWith(
+        expect.objectContaining({
+          skip: expect.anything(),
+          take: expect.anything(),
+        })
+      );
+    });
+
+    it('should fetch posts with pagination when page parameter is provided', async () => {
       // Mock user authentication
       const { getUserIdFromToken } = require('@/lib/server');
       getUserIdFromToken.mockReturnValue(1);

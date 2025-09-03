@@ -69,7 +69,7 @@ export default function PostComponent({ post }: PostComponentProps) {
           <div className="flex-shrink-0">
             <div className="w-20 h-20 bg-gray-300 rounded-full flex items-center justify-center">
               <Image
-                src={post.author.image?.url || ""}
+                src={post.author.image?.url || "something"}
                 alt={post.author.image?.filename || `avatar: ${post.author.name}`}
                 width={20}
                 height={20}

@@ -11,9 +11,7 @@ export async function GET(request: NextRequest) {
   }
   try {
     const { searchParams } = new URL(request.url);
-    const page = Math.max(parseInt(searchParams.get('page') || '1', 10), 1);
-    const pageSize = 5;
-    const skip = (page - 1) * pageSize;
+    const pageParam = searchParams.get('page');
     const titleSearch = searchParams.get('title');
     const contentSearch = searchParams.get('content');
     const minComments = searchParams.get('minComments');
@@ -27,33 +25,68 @@ export async function GET(request: NextRequest) {
     }
     // Comment count filtering will be applied after fetching
 
-    const posts = await prisma.post.findMany({
-      skip,
-      take: pageSize,
-      where,
-      orderBy: {
-        createdAt: 'desc',
-      },
-      select: {
-        id: true,
-        title: true,
-        content: true,
-        published: true,
-        authorId: true,
-        createdAt: true,
-        updatedAt: true,
-        author: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            avatar: true,
-          },
+    let posts;
+    if (!pageParam) {
+      // No page parameter provided, return all posts
+      posts = await prisma.post.findMany({
+        where,
+        orderBy: {
+          createdAt: 'desc',
         },
-        images: true,
-        comments: true,
-      },
-    });
+        select: {
+          id: true,
+          title: true,
+          content: true,
+          published: true,
+          authorId: true,
+          createdAt: true,
+          updatedAt: true,
+          author: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              avatar: true,
+            },
+          },
+          images: true,
+          comments: true,
+        },
+      });
+    } else {
+      // Page parameter provided, use pagination
+      const page = Math.max(parseInt(pageParam || '1', 10), 1);
+      const pageSize = 5;
+      const skip = (page - 1) * pageSize;
+
+      posts = await prisma.post.findMany({
+        skip,
+        take: pageSize,
+        where,
+        orderBy: {
+          createdAt: 'desc',
+        },
+        select: {
+          id: true,
+          title: true,
+          content: true,
+          published: true,
+          authorId: true,
+          createdAt: true,
+          updatedAt: true,
+          author: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              avatar: true,
+            },
+          },
+          images: true,
+          comments: true,
+        },
+      });
+    }
 
     // Apply comment count filtering
     let filteredPosts = posts;
