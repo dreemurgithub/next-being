@@ -2,24 +2,25 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function Navbar() {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const handleLogout = async () => {
+    localStorage.removeItem('jwt');
     try {
-      const response = await fetch('/api/auth/logout', {
+      await fetch('/api/auth/logout', {
         method: 'POST',
       });
-      if (response.ok) {
-        localStorage.removeItem('jwt')
-        router.push('/login');
-      } else {
-        console.error('Logout failed');
-      }
     } catch (error) {
       console.error('Logout error:', error);
     }
+    // Always remove JWT and navigate to login
+    // Invalidate the auth reset query to prevent stale data
+    queryClient.invalidateQueries({ queryKey: ['/api/auth/reset'] });
+    router.push('/login');
   };
 
   return (

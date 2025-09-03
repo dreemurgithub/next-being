@@ -14,19 +14,10 @@ export const useAuthReset = () => {
   useEffect(() => {
     if (data && data.accessToken) {
       localStorage.setItem('jwt', data.accessToken as string)
-      if (pathname === '/login') {
-        router.push('/');
-      }
       return
     }
-    // if (data && data.error) {
-    //   router.push('/login');
-    // }
-  }, [data, pathname])
-
-  useEffect(() => {
-    if (error && router) router.push('/login');
-  }, [error, router])
+    if (error && router && pathname !== '/login') router.push('/login');
+  }, [data, pathname, error, router])
 
   return {
     isPending,
