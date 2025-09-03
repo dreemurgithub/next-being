@@ -19,14 +19,14 @@ export const useAuthReset = () => {
       }
       return
     }
-    if (data && data.error) {
-      router.push('/login');
-    }
+    // if (data && data.error) {
+    //   router.push('/login');
+    // }
   }, [data, pathname])
 
-  // useEffect(() => {
-  //   if (error && router) router.push('/login');
-  // }, [error,router])
+  useEffect(() => {
+    if (error && router) router.push('/login');
+  }, [error, router])
 
   return {
     isPending,
