@@ -1,75 +1,20 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState } from 'react';
 import PostList from '@/app/Component/Post/PostList';
 import { Post } from '@/app/Component/Post/PostComponent';
+import { usePostSearch } from '@/hook/usePostSearch';
 
 export default function SearchPostPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [minComments, setMinComments] = useState<number | ''>('');
   const [maxComments, setMaxComments] = useState<number | ''>('');
 
-  // Placeholder data - in a real app, this would come from an API
-  const placeholderPosts: Post[] = [
-    {
-      id: '1',
-      title: 'Sample Post 1',
-      content: 'This is a sample post.',
-      published: true,
-      authorId: 'author1',
-      author: {
-        id: 'author1',
-        name: 'John Doe',
-        email: 'john@example.com',
-        image: {
-          id: 'img1',
-          filename: 'avatar.jpg',
-          blob: new Uint8Array(),
-          mimeType: 'image/jpeg',
-          size: 0,
-          folder: 'avatars',
-          uploadedBy: 'author1',
-          postId: null,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          url: '/placeholder-avatar.jpg'
-        }
-      },
-      images: [],
-      comments: [{}, {}], // 2 comments
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: '2',
-      title: 'Sample Post 2',
-      content: 'Another sample post.',
-      published: true,
-      authorId: 'author2',
-      author: {
-        id: 'author2',
-        name: 'Jane Smith',
-        email: 'jane@example.com',
-        image: {
-          id: 'img2',
-          filename: 'avatar.jpg',
-          blob: new Uint8Array(),
-          mimeType: 'image/jpeg',
-          size: 0,
-          folder: 'avatars',
-          uploadedBy: 'author2',
-          postId: null,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          url: '/placeholder-avatar.jpg'
-        }
-      },
-      images: [],
-      comments: [{}, {}, {}, {}], // 4 comments
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }
-  ];
+  const { isPending, error, data } = usePostSearch({
+    title: searchQuery || undefined,
+    minComments: minComments || undefined,
+    maxComments: maxComments || undefined,
+  });
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -142,9 +87,11 @@ export default function SearchPostPage() {
       {/* Results Section */}
       <div>
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Search Results</h2>
-        <Suspense fallback={<div className="text-center py-8">Loading posts...</div>}>
-          <PostList posts={placeholderPosts} />
-        </Suspense>
+        {isPending && <div className="text-center py-8">Loading posts...</div>}
+        {error && <div className="text-center py-8 text-red-600">Error loading posts: {error.message}</div>}
+        {!isPending && !error && (
+          <PostList posts={data || []} />
+        )}
       </div>
     </div>
   );

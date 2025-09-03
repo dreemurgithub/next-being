@@ -32,6 +32,10 @@ export default function Navbar() {
           <Link href="/user" className="hover:text-gray-300">
             My Page
           </Link>
+
+          <Link href="/search/post" className="hover:text-gray-300">
+            Search Post
+          </Link>
         </div>
         <button
           onClick={handleLogout}

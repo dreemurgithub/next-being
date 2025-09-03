@@ -1,5 +1,9 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+# Deploy
+
+https://next-being.vercel.app/
+
 ## Getting Started
 
 First, run the development server:
@@ -23,6 +27,7 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 ## Prerequisites
 
 This project uses Prisma for database management and Vercel Blob for file storage. Follow the steps below to set up these dependencies.
+
 
 ### Database Setup with Prisma
 
